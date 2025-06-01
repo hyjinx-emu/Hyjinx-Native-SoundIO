@@ -62,7 +62,8 @@ jobs:
       - name: Configure
         shell: bash
         working-directory: build
-        run: cmake ..
+        run: cmake .. \
+          -DCMAKE_INSTALL_LIBDIR=$GITHUB_WORKSPACE/out
 
       - name: Build
         shell: bash
