@@ -41,9 +41,6 @@ jobs:
     runs-on: ${{ matrix.platform.runner }}-latest
     needs: prepare
 
-    env:
-      BUILD_DIR: temp
-
     strategy:
       matrix:
         platform:
@@ -60,18 +57,16 @@ jobs:
 
       - name: Create temp folder
         shell: bash
-        run: mkdir ${{ env.BUILD_DIR }}
+        run: mkdir build
 
       - name: Configure
         shell: bash
-        working-directory: ${{ env.BUILD_DIR }}
-        run: cmake .. \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
+        working-directory: build
+        run: cmake ..
 
       - name: Build
         shell: bash
-        working-directory: ${{ env.BUILD_DIR }}
+        working-directory: build
         run: make
 
       # - name: Create dist directory build artifacts
