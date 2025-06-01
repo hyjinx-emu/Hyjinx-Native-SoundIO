@@ -51,6 +51,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Checkout (SoundIO)
+        uses: actions/checkout@v4
         with:
           repository: andrewrk/libsoundio
           ref: ${{ env.SOUNDIO_VERSION }}
