@@ -13,7 +13,7 @@ permissions:
   pull-requests: write
 
 env:
-  SOUNDIO_VERSION: 2.0.0 # This needs to be updated to match the SoundIO version being compiled.
+  SOUNDIO_VERSION: 1.1.0 # This needs to be updated to match the SoundIO version being compiled.
   
 jobs:
   prepare:
