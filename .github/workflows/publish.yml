@@ -62,9 +62,10 @@ jobs:
       - name: Configure
         shell: bash
         working-directory: build
-        run: cmake .. \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
+        run: |
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
 
       - name: Build
         shell: bash
