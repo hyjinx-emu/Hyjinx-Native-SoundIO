@@ -44,7 +44,7 @@ jobs:
     strategy:
       matrix:
         platform:
-          - { name: win-x64, runner: windows }
+          #- { name: win-x64,  runner: windows }
           - { name: linux-x64, runner: ubuntu }
       fail-fast: false
       
@@ -62,7 +62,9 @@ jobs:
       - name: Configure
         shell: bash
         working-directory: build
-        run: cmake ..
+        run: cmake .. \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
 
       - name: Build
         shell: bash
