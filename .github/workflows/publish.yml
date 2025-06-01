@@ -3,8 +3,8 @@ name: publish
 on:
   push:
     branches-ignore: [ main ]
-    # paths:
-    #   - '.github/workflows/publish.yml'
+    paths:
+      - '.github/workflows/publish.yml'
   release:
     types: [ published ]
     
@@ -172,7 +172,6 @@ jobs:
   publish:
     runs-on: windows-latest
     needs: package
-    if: true == false
     
     steps:
       - name: Download artifacts
