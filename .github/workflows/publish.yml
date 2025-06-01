@@ -44,7 +44,7 @@ jobs:
     strategy:
       matrix:
         platform:
-          - { name: win-x64,   runner: windows }
+          - { name: win-x64,   runner: ubuntu }
           - { name: linux-x64, runner: ubuntu  }
       fail-fast: false
       
