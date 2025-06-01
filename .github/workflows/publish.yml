@@ -63,13 +63,14 @@ jobs:
         run: mkdir ${{ env.BUILD_DIR }}
 
       - name: Configure
-        working-directory: ${{ env.BUILD_DIR }}
         shell: bash
-        run: cmake ..
+        run: cmake -S . -B "${{ env.BUILD_DIR }}" \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED_LIBS=ON
 
       - name: Build
         shell: bash
-        run: make
+        run: cmake --install "${{ env.BUILD_DIR }}/" --prefix "out"
 
       # - name: Create dist directory build artifacts
       #   shell: bash
