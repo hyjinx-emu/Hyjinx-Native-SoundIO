@@ -66,11 +66,11 @@ jobs:
         shell: bash
         run: cmake -S . -B "${{ env.BUILD_DIR }}" \
           -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=ON
+          -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
 
       - name: Build
         shell: bash
-        run: cmake --install "${{ env.BUILD_DIR }}/" --prefix "out"
+        run: make
 
       # - name: Create dist directory build artifacts
       #   shell: bash
