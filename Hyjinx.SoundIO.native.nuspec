@@ -14,6 +14,6 @@
   <files>
     <file src="README.md" target="" />
     <file src="LICENSE.txt" target="" />
-    <file src="runtimes\**" target="runtimes" />
+    <file src="dist\runtimes\**" target="runtimes" />
   </files>
 </package>

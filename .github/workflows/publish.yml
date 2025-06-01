@@ -3,8 +3,8 @@ name: publish
 on:
   push:
     branches-ignore: [ main ]
-    paths:
-      - '.github/workflows/publish.yml'
+    # paths:
+    #   - '.github/workflows/publish.yml'
   release:
     types: [ published ]
     
@@ -13,7 +13,7 @@ permissions:
   pull-requests: write
 
 env:
-  SOUNDIO_VERSION: 0.1.0 # This needs to be updated to match the SoundIO version being compiled.
+  SOUNDIO_VERSION: 2.0.0 # This needs to be updated to match the SoundIO version being compiled.
   
 jobs:
   prepare:
@@ -36,9 +36,59 @@ jobs:
         shell: bash
         run: echo "version_suffix=preview.${{ github.run_number }}" >> $GITHUB_OUTPUT
   
+  build-native:
+    name: build (${{ matrix.platform.name }})
+    runs-on: ${{ matrix.platform.runner }}-latest
+    needs: prepare
+
+    env:
+      BUILD_DIR: temp
+
+    strategy:
+      matrix:
+        platform:
+          - { name: win-x64, runner: windows }
+          - { name: linux-x64, runner: ubuntu }
+      fail-fast: false
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: andrewrk/libsoundio
+          ref: ${{ env.SOUNDIO_VERSION }}
+
+      - name: Create temp folder
+        shell: bash
+        run: mkdir ${{ env.BUILD_DIR }}
+
+      - name: Configure
+        working-directory: ${{ env.BUILD_DIR }}
+        shell: bash
+        run: cmake ..
+
+      - name: Build
+        shell: bash
+        run: make
+
+      # - name: Create dist directory build artifacts
+      #   shell: bash
+      #   run: mkdir -p "dist/runtimes/${{ matrix.platform.name }}/native"
+
+      # - name: Stage artifacts (Windows)
+      #   if: matrix.platform.name == 'win-x64'
+      #   shell: bash
+      #   run: cp -r "out/bin/"OpenAL32.dll "dist/runtimes/${{ matrix.platform.name }}/native"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "everything-${{ matrix.platform.name }}"
+          path: "."
+  
   package:
     runs-on: windows-latest
-    needs: [ prepare ]
+    needs: [ prepare, build-native ]
 
     steps:
       - name: Checkout
@@ -69,6 +119,7 @@ jobs:
   publish:
     runs-on: windows-latest
     needs: package
+    if: true == false
     
     steps:
       - name: Download artifacts
