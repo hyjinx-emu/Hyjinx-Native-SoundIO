@@ -12,8 +12,8 @@
     <readme>README.md</readme>
   </metadata>
   <files>
-    <file src="README.md" target="." />
-    <file src="LICENSE" target="." />
+    <file src="README.md" target="" />
+    <file src="LICENSE.txt" target="" />
     <file src="runtimes\**" target="runtimes" />
   </files>
 </package>
