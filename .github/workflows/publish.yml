@@ -13,7 +13,7 @@ permissions:
   pull-requests: write
 
 env:
-  SOUNDIO_VERSION: 1.1.0 # This needs to be updated to match the SoundIO version being compiled.
+  SOUNDIO_VERSION: 2.0.0 # This needs to be updated to match the SoundIO version being compiled.
   
 jobs:
   prepare:
@@ -36,13 +36,116 @@ jobs:
         shell: bash
         run: echo "version_suffix=preview.${{ github.run_number }}" >> $GITHUB_OUTPUT
   
+  build-native:
+    name: build (${{ matrix.platform.name }})
+    runs-on: ${{ matrix.platform.runner }}-latest
+    needs: prepare
+
+    strategy:
+      matrix:
+        platform:
+          - { name: win-x64,   runner: ubuntu }
+          - { name: linux-x64, runner: ubuntu  }
+      fail-fast: false
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout (SoundIO)
+        uses: actions/checkout@v4
+        with:
+          repository: andrewrk/libsoundio
+          ref: ${{ env.SOUNDIO_VERSION }}
+          path: libsoundio
+
+      - name: Install dependencies (Linux)
+        if: matrix.platform.name == 'linux-x64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev libpulse-dev libjack-jackd2-dev
+
+      - name: Install mingw32 (Windows)
+        if: matrix.platform.name == 'win-x64'
+        shell: bash
+        run: |
+          sudo apt-get update 
+          sudo apt-get install -y \
+            mingw-w64 gcc-mingw-w64 g++-mingw-w64
+
+      - name: Create temp folder
+        shell: bash
+        working-directory: libsoundio
+        run: mkdir build
+
+      - name: Configure MinGW (Windows)
+        if: matrix.platform.name == 'win-x64'
+        shell: bash
+        run: scripts/setup-mingw-toolchain.sh $GITHUB_WORKSPACE/mingw-toolchain.cmake
+          
+      - name: Configure (Windows)
+        if: matrix.platform.name == 'win-x64'
+        shell: bash
+        working-directory: libsoundio/build
+        run: |
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/mingw-toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
+
+      - name: Configure (Linux)
+        if: matrix.platform.name == 'linux-x64'
+        shell: bash
+        working-directory: libsoundio/build
+        run: |
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/out
+
+      - name: Build
+        shell: bash
+        working-directory: libsoundio/build
+        run: make -j$(nproc)
+
+      - name: Install
+        shell: bash
+        working-directory: libsoundio/build
+        run: make install
+
+      - name: Create staging folder
+        shell: bash
+        run: mkdir -p dist/runtimes/${{ matrix.platform.name }}/native
+
+      - name: Stage outputs (Windows)
+        if: matrix.platform.name == 'win-x64'
+        shell: bash
+        run: cp out/lib/*.dll "dist/runtimes/${{ matrix.platform.name }}/native"
+
+      - name: Stage outputs (Linux)
+        if: matrix.platform.name == 'linux-x64'
+        shell: bash
+        run: scripts/stage-so-libs.sh "dist/runtimes/${{ matrix.platform.name }}/native"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "native-${{ matrix.platform.name }}"  
+          path: "dist/"
+  
   package:
     runs-on: windows-latest
-    needs: [ prepare ]
+    needs: [ prepare, build-native ]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
 
       - name: Set up NuGet
         uses: nuget/setup-nuget@v2
