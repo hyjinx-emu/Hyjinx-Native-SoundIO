@@ -71,6 +71,17 @@ jobs:
         working-directory: libsoundio
         run: mkdir build
 
+      - name: Write MinGW toolchain file
+        if: matrix.platform.name == 'win-x64'
+        shell: bash
+        run: |
+          cat <<EOF > $GITHUB_WORKSPACE/mingw-toolchain.cmake
+          set(CMAKE_SYSTEM_NAME Windows)
+          set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+          set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+          set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+          EOF
+          
       - name: Configure (Windows)
         if: matrix.platform.name == 'win-x64'
         shell: bash
