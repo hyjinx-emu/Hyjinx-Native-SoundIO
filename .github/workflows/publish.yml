@@ -84,6 +84,12 @@ jobs:
         shell: bash
         run: mkdir -p dist/runtimes/${{ matrix.platform.name }}/native
 
+      - name: Upload for debug
+        uses: actions/upload-artifact@v4
+        with:
+          name: "debug-${{ matrix.platform.name }}"  
+          path: "."
+
       - name: Stage outputs (Linux)
         if: matrix.platform.name == 'linux-x64'
         shell: bash
