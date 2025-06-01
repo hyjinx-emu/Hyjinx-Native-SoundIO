@@ -57,14 +57,16 @@ jobs:
         with:
           repository: andrewrk/libsoundio
           ref: ${{ env.SOUNDIO_VERSION }}
+          path: libsoundio
 
       - name: Create temp folder
         shell: bash
+        working-directory: libsoundio
         run: mkdir build
 
       - name: Configure
         shell: bash
-        working-directory: build
+        working-directory: libsoundio/build
         run: |
           cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
@@ -72,12 +74,12 @@ jobs:
 
       - name: Build
         shell: bash
-        working-directory: build
+        working-directory: libsoundio/build
         run: make
 
       - name: Install
         shell: bash
-        working-directory: build
+        working-directory: libsoundio/build
         run: make install
 
       - name: Create staging folder
