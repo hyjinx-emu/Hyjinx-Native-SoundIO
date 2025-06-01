@@ -113,11 +113,11 @@ jobs:
         working-directory: libsoundio/build
         run: make install
 
-      # - name: Debug artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: "debug-${{ matrix.platform.name }}"  
-      #     path: "."
+      - name: Debug artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "debug-${{ matrix.platform.name }}"  
+          path: "."
 
       - name: Create staging folder
         shell: bash
