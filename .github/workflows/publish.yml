@@ -126,7 +126,7 @@ jobs:
       - name: Stage outputs (Windows)
         if: matrix.platform.name == 'win-x64'
         shell: bash
-        run: cp out/bin/*.dll "dist/runtimes/${{ matrix.platform.name }}/native"
+        run: cp out/lib/*.dll "dist/runtimes/${{ matrix.platform.name }}/native"
 
       - name: Stage outputs (Linux)
         if: matrix.platform.name == 'linux-x64'
