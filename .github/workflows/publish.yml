@@ -68,7 +68,7 @@ jobs:
       - name: Build
         shell: bash
         working-directory: build
-        run: make
+        run: make ..
 
       - name: Install
         shell: bash
