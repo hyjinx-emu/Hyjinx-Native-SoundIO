@@ -70,6 +70,11 @@ jobs:
         working-directory: build
         run: make
 
+      - name: Install
+        shell: bash
+        working-directory: build
+        run: make install
+
       # - name: Create dist directory build artifacts
       #   shell: bash
       #   run: mkdir -p "dist/runtimes/${{ matrix.platform.name }}/native"
