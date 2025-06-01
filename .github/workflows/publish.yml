@@ -86,12 +86,6 @@ jobs:
         shell: bash
         run: mkdir -p dist/runtimes/${{ matrix.platform.name }}/native
 
-      - name: Upload for debug
-        uses: actions/upload-artifact@v4
-        with:
-          name: "debug-${{ matrix.platform.name }}"  
-          path: "."
-
       - name: Stage outputs (Linux)
         if: matrix.platform.name == 'linux-x64'
         shell: bash
@@ -110,6 +104,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
 
       - name: Set up NuGet
         uses: nuget/setup-nuget@v2
