@@ -59,11 +59,19 @@ jobs:
           ref: ${{ env.SOUNDIO_VERSION }}
           path: libsoundio
 
+      - name: Install dependencies (Linux)
+        if: matrix.platform.name == 'linux-x64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev libpulse-dev libjack-jackd2-dev
+
       - name: Install mingw32 (Windows)
         if: matrix.platform.name == 'win-x64'
         shell: bash
         run: |
-          sudo apt-get -y install \
+          sudo apt-get update 
+          sudo apt-get install -y \
             mingw-w64 gcc-mingw-w64 g++-mingw-w64
 
       - name: Create temp folder
@@ -71,16 +79,10 @@ jobs:
         working-directory: libsoundio
         run: mkdir build
 
-      - name: Write MinGW toolchain file
+      - name: Configure MinGW (Windows)
         if: matrix.platform.name == 'win-x64'
         shell: bash
-        run: |
-          cat <<EOF > $GITHUB_WORKSPACE/mingw-toolchain.cmake
-          set(CMAKE_SYSTEM_NAME Windows)
-          set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
-          set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
-          set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
-          EOF
+        run: scripts/setup-mingw-toolchain.sh $GITHUB_WORKSPACE/mingw-toolchain.cmake
           
       - name: Configure (Windows)
         if: matrix.platform.name == 'win-x64'
@@ -111,26 +113,31 @@ jobs:
         working-directory: libsoundio/build
         run: make install
 
-      - name: Debug artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: "debug-${{ matrix.platform.name }}"  
-          path: "."
-
-      # - name: Create staging folder
-      #   shell: bash
-      #   run: mkdir -p dist/runtimes/${{ matrix.platform.name }}/native
-
-      # - name: Stage outputs (Linux)
-      #   if: matrix.platform.name == 'linux-x64'
-      #   shell: bash
-      #   run: scripts/stage-so-libs.sh "dist/runtimes/${{ matrix.platform.name }}/native"
-
-      # - name: Upload build artifacts
+      # - name: Debug artifacts
       #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: "native-${{ matrix.platform.name }}"  
-      #     path: "dist/"
+      #     name: "debug-${{ matrix.platform.name }}"  
+      #     path: "."
+
+      - name: Create staging folder
+        shell: bash
+        run: mkdir -p dist/runtimes/${{ matrix.platform.name }}/native
+
+      - name: Stage outputs (Windows)
+        if: matrix.platform.name == 'win-x64'
+        shell: bash
+        run: cp out/bin/*.dll "dist/runtimes/${{ matrix.platform.name }}/native"
+
+      - name: Stage outputs (Linux)
+        if: matrix.platform.name == 'linux-x64'
+        shell: bash
+        run: scripts/stage-so-libs.sh "dist/runtimes/${{ matrix.platform.name }}/native"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: "native-${{ matrix.platform.name }}"  
+          path: "dist/"
   
   package:
     runs-on: windows-latest
