@@ -77,20 +77,20 @@ jobs:
         working-directory: build
         run: make install
 
-      # - name: Create dist directory build artifacts
-      #   shell: bash
-      #   run: mkdir -p "dist/runtimes/${{ matrix.platform.name }}/native"
+      - name: Create staging folder
+        shell: bash
+        run: mkdir -p dist/runtimes/${{ matrix.platform.name }}/native
 
-      # - name: Stage artifacts (Windows)
-      #   if: matrix.platform.name == 'win-x64'
-      #   shell: bash
-      #   run: cp -r "out/bin/"OpenAL32.dll "dist/runtimes/${{ matrix.platform.name }}/native"
+      - name: Stage outputs (Linux)
+        if: matrix.platform.name == 'linux-x64'
+        shell: bash
+        run: scripts/stage-so-libs.sh "dist/runtimes/${{ matrix.platform.name }}/native"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "everything-${{ matrix.platform.name }}"
-          path: "."
+          name: "native-${{ matrix.platform.name }}"  
+          path: "dist/"
   
   package:
     runs-on: windows-latest
