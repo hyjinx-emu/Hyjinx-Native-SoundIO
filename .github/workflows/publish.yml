@@ -128,7 +128,7 @@ jobs:
         run: scripts/stage-so-libs.sh "dist/runtimes/${{ matrix.platform.name }}/native"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: "native-${{ matrix.platform.name }}"  
           path: "dist/"
@@ -164,7 +164,7 @@ jobs:
         run: nuget pack Hyjinx.SoundIO.native.nuspec -OutputDirectory ./out -Version "${{ needs.prepare.outputs.version_number }}"
         
       - name: Upload package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nupkg
           path: ./out/*.nupkg
