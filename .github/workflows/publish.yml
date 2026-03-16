@@ -1,10 +1,11 @@
 name: publish
 
 on:
+  pull_request:
+    types: [opened, reopened, synchronize]
   push:
-    branches-ignore: [ main ]
-    paths:
-      - '.github/workflows/publish.yml'
+    branches:
+      - main
   release:
     types: [ published ]
     
@@ -31,7 +32,7 @@ jobs:
         run: echo "version_number=${{ env.SOUNDIO_VERSION }}" >> $GITHUB_OUTPUT
 
       - name: Set version suffix
-        if: github.event.action != 'published'
+        if: github.event_name != 'release'
         id: set_version_suffix
         shell: bash
         run: echo "version_suffix=preview.${{ github.run_number }}" >> $GITHUB_OUTPUT
@@ -154,12 +155,12 @@ jobs:
           nuget-version: latest
 
       - name: Package preview
-        if: github.event.action != 'published'
+        if: github.event_name != 'release'
         shell: pwsh
         run: nuget pack Hyjinx.SoundIO.native.nuspec -OutputDirectory ./out -Suffix "${{ needs.prepare.outputs.version_suffix }}" -Version "${{ needs.prepare.outputs.version_number }}"
 
       - name: Package release
-        if: github.event.action == 'published'
+        if: github.event_name == 'release'
         shell: pwsh
         run: nuget pack Hyjinx.SoundIO.native.nuspec -OutputDirectory ./out -Version "${{ needs.prepare.outputs.version_number }}"
         
@@ -170,6 +171,7 @@ jobs:
           path: ./out/*.nupkg
     
   publish:
+    if: github.event_name == 'release' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: windows-latest
     needs: package
     
@@ -213,7 +215,7 @@ jobs:
         with:
           tag: ${{ needs.prepare.outputs.full_version }}
           artifacts: "dist/*.*"
-          prerelease: ${{ github.event.action != 'published' }}
-          generateReleaseNotes: ${{ github.event.action != 'published' }}
+          prerelease: ${{ github.event_name != 'release' }}
+          generateReleaseNotes: ${{ github.event_name != 'release' }}
           allowUpdates: true
           omitBodyDuringUpdate: true
