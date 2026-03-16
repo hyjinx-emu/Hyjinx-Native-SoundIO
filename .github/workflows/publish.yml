@@ -51,10 +51,10 @@ jobs:
       
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Checkout (SoundIO)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: andrewrk/libsoundio
           ref: ${{ env.SOUNDIO_VERSION }}
@@ -140,7 +140,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download artifacts
         uses: actions/download-artifact@v8
@@ -202,7 +202,7 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download artifacts
         uses: actions/download-artifact@v8
